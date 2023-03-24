@@ -1,0 +1,60 @@
+version: "3"
+
+services:
+  discovery-service:
+    build:
+      context: ./discoveryservice
+    ports:
+      - "8761:8761"
+
+  todo:
+    build:
+      context: ./todo
+    ports:
+     - 8086:8086
+    depends_on:
+      - todo-db
+      - discovery-service
+    environment:
+      SERVER_PORT: 8086
+      SERVER_HOST: localhost
+      SPRING_DATASOURCE_USERNAME: architect
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_URL: jdbc:postgresql://todo-db/todo_db
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+
+  todo-db:
+    image: postgres:12
+    ports:
+      - "10001:5432"
+    environment:
+      POSTGRES_DB: todo_db
+      POSTGRES_USER: architect
+      POSTGRES_PASSWORD: password
+
+  person:
+    build:
+      context: ./person
+    ports:
+    - "8087:8087"
+    depends_on:
+      - person-db
+      - todo
+      - discovery-service
+    environment:
+      SERVER_PORT: 8087
+      SERVER_HOST: localhost
+      TODO_PROTOCOL: http
+      SPRING_DATASOURCE_USERNAME: architect
+      SPRING_DATASOURCE_PASSWORD: password
+      SPRING_DATASOURCE_URL: jdbc:postgresql://person-db/person_db
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8761/eureka/
+
+  person-db:
+    image: postgres:12
+    ports:
+      - "10002:5432"
+    environment:
+      POSTGRES_DB: person_db
+      POSTGRES_USER: architect
+      POSTGRES_PASSWORD: password
