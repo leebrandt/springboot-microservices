@@ -14,7 +14,7 @@
 	<name>person</name>
 	<description>Person service</description>
 	<properties>
-		<java.version>20</java.version>
+		<java.version>19</java.version>
 		<spring-cloud.version>2022.0.1</spring-cloud.version>
 	</properties>
 	<dependencies>
