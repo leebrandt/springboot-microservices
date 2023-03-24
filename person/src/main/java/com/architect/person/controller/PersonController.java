@@ -31,17 +31,17 @@ public class PersonController {
         }
     }
 
-    @GetMapping("/api/v1/person-microservice/todos")
-    public ResponseEntity getTodos(@RequestBody String personName) {
+    @GetMapping("/api/v1/person-microservice/{personId}/todos")
+    public ResponseEntity getTodos(@PathVariable("personId") Long personId) {
         try {
-            return ResponseEntity.ok(todoService.getTodos(personName));
+            return ResponseEntity.ok(todoService.getTodos(personId));
         } catch (Exception ex) {
-            return ResponseEntity.badRequest().body("Either person is not found or there are no todos for " + personName);
+            return ResponseEntity.badRequest().body("Either person is not found or there are no todos.");
         }
     }
 
     @PostMapping("/api/v1/person-microservice/todo")
-    public ResponseEntity createTodo( @RequestBody TodoDto todoDto) {
+    public ResponseEntity createTodo(@RequestBody TodoDto todoDto) {
         try {
             return ResponseEntity.ok(todoService.createTodo(todoDto));
         } catch (Exception ex) {

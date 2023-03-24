@@ -32,10 +32,9 @@ public class TodoService {
         return personRepository.findByName(personName).orElseThrow(() -> new NoSuchElementException("Person "  + personName + " is not found"));
     }
 
-    public List<Todo> getTodos(String personName) {
-        Person person = getPerson(personName);
+    public List<Todo> getTodos(Long personId) {
         ResponseEntity<Todo[]> response = restTemplate.getForEntity(
-                String.format(todoMicroservice, todoMicroserviceProtocol) + "/todos/" + person.getId(),
+                String.format(todoMicroservice, todoMicroserviceProtocol) + "/todos/person/" + personId,
                 Todo[].class
         );
         return List.of(response.getBody());
