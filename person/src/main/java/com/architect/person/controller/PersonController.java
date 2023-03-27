@@ -5,7 +5,6 @@ import com.architect.person.dto.TodoDto;
 import com.architect.person.service.PersonService;
 import com.architect.person.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,13 +13,15 @@ import org.springframework.web.bind.annotation.*;
 public class PersonController {
 
     @Autowired
-    private DiscoveryClient discoveryClient;
-
-    @Autowired
     private TodoService todoService;
 
     @Autowired
     private PersonService personService;
+
+    @GetMapping
+    public ResponseEntity health() {
+        return ResponseEntity.ok("Success");
+    }
 
     @PostMapping("/api/v1/person-microservice")
     public ResponseEntity createPerson(@RequestBody PersonDto personDto) {

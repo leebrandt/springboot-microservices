@@ -1,0 +1,90 @@
+name: springboot-microservices
+description: Spring boot microservices and postgres database
+homepage: https://github.com/architect-templates/springboot-microservices
+keywords:
+  - spring boot
+  - microservices
+  - postgres
+
+# Add secrets to be used by different services. For more information:
+# https://docs.architect.io/deployments/secrets/
+secrets:
+  todo_db_name:
+    description: Name of the Todo microservice database the Todo component will store content in
+    default: todo_db
+  person_db_name:
+    description: Name of the Person microservice database the Person component will store content in
+    default: person_db
+  db_user:
+    description: Root user to assign to the component's database
+    default: architect
+  db_pass:
+    description: Root password to assign to the component's database
+    default: password
+  db_port:
+    description: Port for database
+    default: 5432
+  todo_port:
+    description: Port for todo service
+    default: 8086
+  person_port:
+    description: Port for person service
+    default: 8087
+
+services:
+  todo:
+    build:
+      context: ./todo
+    replicas: 2
+    interfaces:
+      main:
+        port: ${{ secrets.todo_port }}
+    depends_on:
+      - todo-db
+    environment:
+      SERVER_PORT: ${{ services.todo.interfaces.main.port }}
+      SERVER_HOST: ${{ services.todo.interfaces.main.ingress.host }}
+      SPRING_DATASOURCE_USERNAME: ${{ secrets.db_user }}
+      SPRING_DATASOURCE_PASSWORD: ${{ secrets.db_pass }}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${{ services.todo-db.interfaces.main.host }}:${{ services.todo-db.interfaces.main.port }}/${{ secrets.todo_db_name }}
+
+  todo-db:
+    image: postgres:12
+    interfaces:
+      main:
+        port: ${{ secrets.db_port }}
+        protocol: postgresql
+    environment:
+      POSTGRES_DB: ${{ secrets.todo_db_name }}
+      POSTGRES_USER: ${{ secrets.db_user }}
+      POSTGRES_PASSWORD: ${{ secrets.db_pass }}
+
+  person:
+    build:
+      context: ./person
+    interfaces:
+      main:
+        port: ${{ secrets.person_port }}
+        ingress:
+          subdomain: person
+    depends_on:
+      - person-db
+      - todo
+    environment:
+      SERVER_PORT: ${{ services.person.interfaces.main.port }}
+      SERVER_HOST: ${{ services.person.interfaces.main.ingress.host }}
+      TODO_URL: ${{ services.todo.interfaces.main.url }}
+      SPRING_DATASOURCE_USERNAME: ${{ secrets.db_user }}
+      SPRING_DATASOURCE_PASSWORD: ${{ secrets.db_pass }}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${{ services.person-db.interfaces.main.host }}:${{ services.person-db.interfaces.main.port }}/${{ secrets.person_db_name }}
+
+  person-db:
+    image: postgres:12
+    interfaces:
+      main:
+        port: ${{ secrets.db_port }}
+        protocol: postgresql
+    environment:
+      POSTGRES_DB: ${{ secrets.person_db_name }}
+      POSTGRES_USER: ${{ secrets.db_user }}
+      POSTGRES_PASSWORD: ${{ secrets.db_pass }}

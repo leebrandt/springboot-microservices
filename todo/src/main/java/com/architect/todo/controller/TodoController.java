@@ -16,6 +16,11 @@ public class TodoController {
     @Autowired
     private TodoService todoService;
 
+    @GetMapping
+    public ResponseEntity health() {
+        return ResponseEntity.ok("Success");
+    }
+
     @GetMapping("/todos/person/{personId}")
     public ResponseEntity<List<Todo>> getTodos(@PathVariable("personId") Long personId) {
         return ResponseEntity.ok(todoService.getTodos(personId));

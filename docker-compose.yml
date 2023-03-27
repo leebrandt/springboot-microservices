@@ -11,7 +11,7 @@ services:
     build:
       context: ./todo
     ports:
-      - 8086:8086
+      - 8070-8072:8086
     depends_on:
       - todo-db
       - discovery-service
